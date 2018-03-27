@@ -1,0 +1,164 @@
+<!-- page content -->
+<div class="right_col" role="main">
+    <div class="">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{ var.title }}<small>All in user list</small></h2>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="x_content">
+
+
+
+                    {% if var.error.status == true %}
+                        <div class="alert alert-error fade in alert-dismissable" style="margin-top:18px;">
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close" title="close">×</a>
+                            {{ var.error.message }}
+                        </div>
+                    {% else %}
+
+                        <div class="meetingList">
+                            <table class="table">
+                                <thead style="background: #0b97c4; color: white">
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Adi Soyadi</th>
+                                    <th scope="col">Telefon</th>
+                                    <th scope="col" class="col-md-6">Konu</th>
+                                    <th scope="col">Tarih</th>
+                                    <th scope="col"></th>
+                                    <th scope="col"></th>
+                                </tr>
+                                </thead>
+                                <tbody id="tbodyData">
+
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include '@Panel/Default/ModMeeting/editModal.html.twig' %}
+<style>
+    #tbodyData td, thead th {
+        border-left:1px solid #ccc ;
+    }
+    .close{
+        color: #000;
+    }
+</style>
+<script>
+    $(function () {
+        $.get( "/{{ var.locale }}/api/ModMeeting/get_day_meeting", function( data ) {
+            $('#tbodyData').html('');
+            $.each( data, function( key, value ) {
+                var dat = value.alarm.date;
+                dat = dat.split(' ');
+                var status = '';
+                var statusString ='';
+                if(value.status ==='a'){
+                    statusString ='Aktif';
+                    status ='p';
+                }else{
+                    statusString ='Pasif';
+                    status ='a';
+                }
+                var myDate = new Date(dat[0]);
+
+                var divData = '' +
+                    '<tr class="cls_'+value.id+'"> <th scope="row">'+value.id+'</th> ' +
+                    '<td><a href="javascript:void(0);" onclick="test('+value.id+')" >'+value.nameSurname+'</a></td> ' +
+                    '<td>'+value.phone+'</td> ' +
+                    '<td class="col-md-6">'+value.content+'</td> ' +
+                    '<td>' + myDate.getDate() + "-" +(myDate.getMonth() + 1) + "-"+ myDate.getFullYear()+'</td> ' +
+                    '<td><a href="#" class="close " onclick="remove('+value.id+',\''+status+'\')" title="close">'+statusString+'</a>\n <td>' +
+                    '</tr>';
+                $("#tbodyData").append(divData);
+            });
+        });
+    });
+    function test(id){
+        id +='&id[]='+id;
+        $.ajax({
+            type: "POST",
+            url: "/{{ var.locale }}/api/ModMeeting/load_edit_meeting",
+            data: id,
+            dataType: 'json',
+            success: function (msg) {
+                if(msg === "not.roll"){
+                    toastr["error"]("{{ var.lang.genel.tr.not_roll }}");
+                }else if(msg === 'null'){
+                    toastr["error"]("{{ var.lang.genel.tr.unknown }}");
+                }else{
+                    $('#id').val(msg.id);
+                    $('#nameSurname').val(msg.nameSurname);
+                    $('#alarm').val(msg.alarm.date);
+                    $('#date').val(msg.date.date);
+                    $('#phone').val(msg.phone);
+                    $('#subject').val(msg.subject);
+                    $('#content').val(msg.content);
+                }
+            }
+        });
+        $(".editModal").modal('show');
+    }
+    function remove(id, status) {
+
+            var active = '';
+            var varStatus = '';
+
+                    active += '&id[]=' +id;
+
+            varStatus = '&status[]='+status;
+            $.ajax({
+                type: "POST",
+                url: "/{{ var.locale }}/api/ModMeeting/status",
+                data: active + varStatus,
+                success: function (msg) {
+                    if (msg === 'success.active') {
+                        refresh();
+                    }
+                }
+            });
+
+    }
+    
+    function refresh() {
+        $.get( "/{{ var.locale }}/api/ModMeeting/get_day_meeting", function( data ) {
+            $('#tbodyData').html('');
+            $.each( data, function( key, value ) {
+                var dat = value.alarm.date;
+                dat = dat.split(' ');
+                var status = '';
+                var statusString ='';
+                if(value.status ==='a'){
+                    statusString ='Aktif';
+                    status ='p';
+                }else{
+                    statusString ='Pasif';
+                    status ='a';
+                }
+
+                var divData = '' +
+                    '<tr class="cls_'+value.id+'"> <th scope="row">'+value.id+'</th> ' +
+                    '<td>'+value.nameSurname+'</td> ' +
+                    '<td>'+value.phone+'</td> ' +
+                    '<td>'+value.content+'</td> ' +
+                    '<td>'+dat[0]+'</td> ' +
+                    '<td><a href="#" class="close" onclick="remove('+value.id+',\''+status+'\')" title="close">'+statusString+'</a>\n <td>' +
+                    '</tr>';
+                $("#tbodyData").append(divData);
+            });
+        });
+    }
+</script>
+
+<!-- /page content -->

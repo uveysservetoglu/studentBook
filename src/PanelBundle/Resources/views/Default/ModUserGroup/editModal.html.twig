@@ -1,0 +1,58 @@
+<div class="modal fade editModal" tabindex="-1" role="dialog" aria-hidden="true" id="insertModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="edit">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">Edit User</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group col-md-12">
+                        <label class="control-label col-md-3 col-sm-3" for="nameSurname">{{ var.lang.grid.name }}<span class="required">*</span>
+                        </label>
+                        <input type="hidden" name="groupId" id="groupId">
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="name" name="name" required="required" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+
+                    <div class="clear"></div>
+                </div>
+                <div class="modal-body">
+
+                    <div class="clear"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">{{ var.lang.genel.tr.form.close }}</button>
+                    <button type="submit" class="btn btn-primary">{{ var.lang.genel.tr.form.edit }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $( "#edit" ).submit(function( event ) {
+        event.preventDefault();
+        status    = 'false';
+        var data  = {};
+        data.name = $('#name').val();
+        data.id   = $('#groupId').val();
+        $.ajax({
+                type: "POST",
+                url: "/{{ var.locale }}/api/ModUser/edit_user_group",
+                data: data,
+                success: function (msg) {
+                    if(msg === 'success.update'){
+                        toastr["success"]("{{ var.lang.genel.tr.success_update }}");
+                        $('.editModal').modal('hide');
+                        $('#flex1').flexReload();
+                    }else if(msg === "not.roll"){
+                        toastr["error"]("{{ var.lang.genel.tr.not_roll }}");
+                    }
+                }
+            }
+        );
+
+    })
+</script>

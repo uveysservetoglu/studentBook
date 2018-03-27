@@ -1,0 +1,94 @@
+<div class="modal fade editModal" tabindex="-1" role="dialog" aria-hidden="true" id="insertModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="edit">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">Edit Meeting</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group col-md-12 req">
+                        <label class="control-label col-md-3 col-sm-3" for="nameSurname">{{ var.lang.grid.nameSurname  }} <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="nameSurname" name="nameSurname" required="required" class="form-control col-md-7 col-xs-12">
+                            <input type="hidden" id="id" name="id" required="required" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="control-label col-md-3 col-sm-3" for="alarm">Hatirlatma Tarihi</label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="date" id="alarm" name="alarm" required class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12 req" style="display: none">
+                        <label class="control-label col-md-3 col-sm-3" for="date">Guncelleme Tarihi<span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="date" name="date" required="required" disabled value="{{ "now"|date("Y-m-d") }}" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12 req">
+                        <label class="control-label col-md-3 col-sm-3" for="phone">Telefon<span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="phone" name="phone" required="required" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-12 req">
+                        <label class="control-label col-md-3 col-sm-3" for="content">Içerik
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <textarea name="content" id="content" cols="30" rows="10" class="form-control col-md-12 col-xs-12"></textarea>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                <div class="modal-body">
+
+                    <div class="clear"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">{{ var.lang.genel.tr.form.close }}</button>
+                    <button type="submit" class="btn btn-primary">{{ var.lang.genel.tr.form.edit }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $( "#edit" ).submit(function( event ) {
+        event.preventDefault();
+        status = 'false';
+        var data = {};
+
+        data.id = $('#id').val();
+        data.nameSurname = $('#nameSurname').val();
+        data.alarm       = $('#alarm').val();
+        data.date        = $('#date').val();
+        data.phone       = $('#phone').val();
+        data.subject     = $('#subject').val();
+        data.content     = $('#content').val();
+
+        $.ajax({
+                type: "POST",
+                url: "/{{ var.locale }}/api/ModMeeting/edit",
+                data: data,
+                success: function (msg) {
+                    if(msg === 'success.insert'){
+                        toastr["success"]("{{ var.lang.genel.tr.success_insert }}");
+                        $('.editModal').modal('hide');
+                        $('#flex1').flexReload();
+                    }else if(msg === "not.roll"){
+                        toastr["error"]("{{ var.lang.genel.tr.not_roll }}");
+                    }else{
+                        toastr["error"]("{{ var.lang.genel.tr.unknown }}");
+                    }
+                }
+            }
+        );
+
+    })
+</script>

@@ -1,0 +1,112 @@
+<script type="text/javascript">
+    var height_flexi = $('.right_col').height();
+    $("#flex1").flexigrid
+    (
+        {
+            url: '/{{ var.locale }}/api/ModUserGroup/list',
+            dataType : 'json',
+            pagesText: '{{ var.lang.grid.pagesText }}',
+            pagestat : '{{ var.lang.genel.tr.grid.pagesTat }}',
+            colModel : [
+                {display: 'ID', name : 'id', width : 40, sortable : true, align: 'center'},
+                {display: '{{ var.lang.grid.pagesText }}',name : 'name', width : 180, sortable : true, align: 'left'},
+            ],
+            buttons : [
+                {name: '{{ var.lang.genel.tr.grid.add }}', bclass: 'add', onpress : test},
+                {name: '{{ var.lang.genel.tr.grid.edit }}', bclass: 'edit', onpress : test},
+                {name: '{{ var.lang.genel.tr.grid.delete }}', bclass: 'delete', onpress : test},
+                {separator: true}
+            ],
+            searchitems : [
+                {display: 'ID', name : 'id'},
+                {display: '{{ var.lang.grid.pagesText}}', name : 'name', isdefault: true}
+            ],
+            sortname: "id",
+            sortorder: "desc",
+            usepager: true,
+            title: '{{ var.title }}',
+            useRp: true,
+            rp: 10,
+            showTableToggleBtn: true,
+            width: '100%',
+            height: 265
+        }
+    );
+    function test(com,grid) {
+        if (com === '{{ var.lang.genel.tr.grid.add }}'){
+            $(".insertModal").modal('show');
+        }
+        else if(com === '{{ var.lang.genel.tr.grid.edit }}'){
+            if ($('.trSelected', grid).length == 1) {
+                var id ='';
+                id +='&id[]='+$('.trSelected:first',grid).attr('id').replace(/row/i,'');
+                $.ajax({
+                    type: "POST",
+                    url: "/{{ var.locale }}/api/ModUser/load_edit_user_group",
+                    data: id,
+                    dataType: 'json',
+                    success: function (msg) {
+                        if(msg === "not.roll"){
+                            toastr["error"]("{{ var.lang.genel.tr.not_roll }}");
+                        }else if(msg === 'null'){
+                            toastr["error"]("{{ var.lang.genel.tr.unknown }}");
+                        }else{
+                            $('#name').val(msg.name);
+                            $('#groupId').val(msg.id);
+                        }
+                    }
+                });
+                $(".editModal").modal('show');
+            }else {
+                toastr["error"]("{{ var.lang.genel.tr.just_select_row }}");
+            }
+        }
+        else {
+            if ($('.trSelected', grid).length > 0){
+                var conf = confirm("{{ var.lang.genel.tr.sure_delete }}");
+                if (conf === true){
+                    var deteleString = '';
+                    $('.trSelected',grid).each(
+                        function() {
+                            deteleString+='&sil[]='+$(this).attr('id').replace(/row/i,'');
+                        }
+                    );
+                    // Gönder Silsin
+                    $.ajax({
+                        type: "POST",
+                        url:  "/{{ var.locale }}/api/ModUser/delete_user_group",
+                        data: deteleString,
+                        success: function(msg){
+                            if(msg === 'success.delete'){
+                                toastr["success"]("{{ var.lang.genel.tr.success_delete }}");
+                                $('#flex1').flexReload();
+                                toastr["success"]("{{ var.lang.genel.tr.refresh_list }}");
+                            }
+                        }
+                    });
+                }
+            }else{
+                toastr["error"]("{{ var.lang.genel.tr.min_select_for_delete }}");
+            }
+        }
+    }
+
+    var status = 'false';
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+</script>

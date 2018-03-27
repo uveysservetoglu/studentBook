@@ -1,0 +1,75 @@
+# api/mod_user begin
+api.mod_user:
+    path: /ModUser/list
+    defaults: { _controller: ApiBundle:ModUser:list }
+api.check_user:
+    path: /ModUser/check_user
+    defaults: { _controller: ApiBundle:ModUser:checkUser }
+api.get_group:
+    path: /ModUser/get_group
+    defaults: { _controller: ApiBundle:ModUser:getGroup }
+api.insert_user:
+    path: /ModUser/insert_user
+    defaults: { _controller: ApiBundle:ModUser:insertUser }
+api.forEditUser:
+    path: /ModUser/load_edit_user
+    defaults: { _controller: ApiBundle:ModUser:loadEditUser }
+api.edit_user:
+    path: /ModUser/edit_user
+    defaults: {_controller: ApiBundle:ModUser:editUser}
+api.delete_user:
+    path: /ModUser/delete_user
+    defaults: {_controller: ApiBundle:ModUser:deleteUser}
+api.status_user:
+    path: /ModUser/status_user
+    defaults: {_controller: ApiBundle:ModUser:statusUser}
+# api/mod_user end
+
+
+# api/mod_user_group begin
+api.mod_user_group:
+    path:     /ModUserGroup/list
+    defaults: { _controller: ApiBundle:ModUserGroup:list }
+
+api.mod_user_group_insert:
+    path:   /ModUser/insert_user_group
+    defaults: { _controller: ApiBundle:ModUserGroup:insert }
+
+api.mod_user_group_edit:
+    path:   /ModUser/edit_user_group
+    defaults: { _controller: ApiBundle:ModUserGroup:edit }
+
+api.mod_user_group_delete:
+    path:   /ModUser/delete_user_group
+    defaults: { _controller: ApiBundle:ModUserGroup:delete }
+
+api.mod_user_group_load_edit :
+    path: /ModUser/load_edit_user_group
+    defaults: {_controller: ApiBundle:ModUserGroup:loadEditUserGroup}
+
+# api/mod_meeting begin
+api.mod_meeting:
+    path: /ModMeeting/list
+    defaults: {_controller: ApiBundle:ModMeeting:list}
+
+api.mod_meeting_insert:
+    path: /ModMeeting/insert
+    defaults: {_controller: ApiBundle:ModMeeting:insert}
+
+api.mod_meeting_edit:
+    path: /ModMeeting/edit
+    defaults: {_controller: ApiBundle:ModMeeting:edit}
+
+api.mod_meeting_delete:
+    path: /ModMeeting/delete
+    defaults: {_controller: ApiBundle:ModMeeting:delete}
+
+api.mod_meeting_load_edit :
+    path: /ModMeeting/load_edit_meeting
+    defaults: {_controller: ApiBundle:ModMeeting:loadEditMeeting}
+api.mod_meeting_status:
+    path: /ModMeeting/status
+    defaults: {_controller: ApiBundle:ModMeeting:status}
+api.mod_meeting_get_day:
+    path: /ModMeeting/get_day_meeting
+    defaults: {_controller: ApiBundle:ModMeeting:getDay}

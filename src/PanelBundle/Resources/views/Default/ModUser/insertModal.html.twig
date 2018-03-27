@@ -1,0 +1,174 @@
+<div class="modal fade insertModal" tabindex="-1" role="dialog" aria-hidden="true" id="insertModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="insert" action="#">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">{{ var.lang.admin.4  }}</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group col-md-12 req">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-firstName">{{ var.lang.nameSurname  }} <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="insert-firstName" name="nameSurname" required="required" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-birthday">{{  var.lang.birthday  }}</label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="date" id="insert-birthday" name="birthday" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-mobil">{{  var.lang.mobile_no  }}</label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="insert-mobil"  name="mobil" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12 req">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-email"> {{  var.lang.email  }}<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="insert-email"  name="email" required="required" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-address">{{  var.lang.address  }}</label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="insert-address" name="address" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-job">{{  var.lang.job  }}</label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="insert-job" name="job" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-website">{{  var.lang.website  }}
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="url" id="insert-website" name="website" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group col-md-12 req">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-username">{{  var.lang.username  }}
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="insert-username" name="username" required onkeyup="user('insert')" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12 req">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-password">{{  var.lang.password  }}
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="password" id="insert-password" name="password" required  class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-password_repeat">{{ var.lang.new_password_repeat  }}
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="password" id="insert-password_repeat" required  class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="control-label col-md-3 col-sm-3" for="group_id">{{ var.lang.member_group  }}
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <select class="form-control" id="insert-group_id" name="group" required>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                <div class="modal-footer insert">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" name="insert" id="btn-insert">{{ var.lang.admin.2  }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $( "#insert" ).submit(function( event ) {
+        function getUser(st) {
+            return $.ajax({
+                    type: "POST",
+                    url: "/{{ var.locale }}/api/ModUser/check_user",
+                    data: st
+                }
+            );
+        }
+        event.preventDefault();
+        status = 'false';
+        var data = {};
+        var inputList = $(this).find('input');
+        var  inputStatus, passwordStatus, usernameStatus;
+
+        for(var i = 0; i < inputList.length; i++) {
+            if(!$(inputList[i]).attr('name')) {
+                continue;
+            }
+            var value = $(inputList[i]).val();
+            if(value.trim() == null || value.trim() == '' && (
+                    $(inputList[i]).attr('name') == 'nameSurname' ||
+                    $(inputList[i]).attr('name') == 'email' ||
+                    $(inputList[i]).attr('name') == 'username'  ||
+                    $(inputList[i]).attr('name') == 'password' )){
+                $(inputList[i]).css('border', '1px solid red');
+                toastr["error"]("{{ var.lang.hata.33 }}");
+                status = 'true';
+            }else {
+                data[$(inputList[i]).attr('name')] = $(inputList[i]).val();
+            }
+        }
+        data.group = $('.insertModal #insert-group_id').val();
+        var pass = $('#insert-password').val(), passR =$('#insert-password_repeat').val();
+        if(pass.trim() != passR.trim()){
+            toastr["error"]("{{ var.lang.hata.16 }}");
+            status = 'true';
+        }
+        var username = '';
+        username +='&username[]='+data.username;
+        console.log(data.group);
+        if(data.group == 0){
+            toastr["error"]("{{ var.lang.hata.33 }}");
+            $('.insertModal #insert-group_id').css('border', '1px solid red');
+            status = 'true';
+        }
+        getUser(username).done(function (response) {
+            var getUser = response;
+            if(getUser !== 'true'){
+                toastr["error"]("{{ var.lang.hata.5 }}");
+                status = 'true';
+            }
+            if (status !== 'true') {
+                $.ajax({
+                        type: "POST",
+                        url: "/{{ var.locale }}/api/ModUser/insert_user",
+                        data: data,
+                        success: function (msg) {
+                            if(msg === 'success.insert'){
+                                toastr["success"]("{{ var.lang.genel.tr.success_insert }}");
+                                $('.insertModal').modal('hide');
+                                $('#flex1').flexReload();
+                            }else if(msg === "not.roll"){
+                                toastr["error"]("{{ var.lang.genel.tr.not_roll }}");
+                            }else if(msg === 'not.username'){
+                                toastr["error"]("{{ var.lang.hata.5 }}");
+                            }else{
+                                toastr["error"]("{{ var.lang.genel.tr.unknown }}");
+                            }
+
+                        }
+                    }
+                );
+            }
+        });
+    });
+</script>

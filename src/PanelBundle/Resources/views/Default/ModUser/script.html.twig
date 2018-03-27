@@ -1,0 +1,228 @@
+<script type="text/javascript">
+    var height_flexi = $('.right_col').height();
+    $("#flex1").flexigrid
+    (
+        {
+            url: '/{{ var.locale }}/api/ModUser/list',
+            dataType : 'json',
+            pagesText: '{{ var.lang.grid.nameSurname }}',
+            pagestat :  '{{ var.lang.genel.tr.grid.pagesTat }}',
+            colModel : [
+                {display: 'ID', name : 'id', width : 40, sortable : true, align: 'center'},
+                {display: '{{ var.lang.grid.nameSurname }}',name : 'nameSurname', width : 180, sortable : true, align: 'left'},
+                {display: '{{ var.lang.grid.email }}', name : 'email', width : 120, sortable : true, align: 'left'},
+                {display: '{{ var.lang.grid.status }}', name : 'status', width : 90, sortable : true, align: 'center'},
+                {display: '{{ var.lang.grid.username }}', name : 'username', width : 130, sortable : true, align: 'left'}
+            ],
+            buttons : [
+                {name: '{{ var.lang.genel.tr.grid.add }}', bclass: 'add', onpress : test},
+                {name: '{{ var.lang.genel.tr.grid.edit }}', bclass: 'edit', onpress : test},
+                {name: '{{ var.lang.genel.tr.grid.delete }}', bclass: 'delete', onpress : test},
+                {name: '{{ var.lang.genel.tr.grid.active }}', bclass: 'add', onpress : test},
+                {name: '{{ var.lang.genel.tr.grid.pasivve }}', bclass: 'delete', onpress : test},
+                {separator: true}
+            ],
+            searchitems : [
+                {display: 'ID', name : 'id'},
+                {display: '{{ var.lang.grid.nameSurname}}', name : 'nameSurname', isdefault: true},
+                {display: '{{ var.lang.grid.username }}', name : 'username', isdefault: true},
+                {display: '{{ var.lang.grid.email }}', name : 'email', isdefault: true}
+            ],
+            sortname: "id",
+            sortorder: "desc",
+            usepager: true,
+            title: '{{ var.title }}',
+            useRp: true,
+            rp: 10,
+            showTableToggleBtn: true,
+            width: '100%',
+            height: 265
+        }
+    );
+    function test(com,grid) {
+        if (com=='{{ var.lang.genel.tr.grid.add }}'){
+            $.get( "/{{ var.locale }}/api/ModUser/get_group", function( data ) {
+                $("#insert-group_id").html("<option value='0'>{{ var.lang.member_group }}</option>");
+                $.each( data, function( key, value ) {
+                    $("#insert-group_id").append("<option value='"+value.id +"'>"+value.name +"</option>");
+                });
+            });
+            $(".insertModal").modal('show');
+            var inputList = $(".insertModal").find('input');
+            for(var i = 0; i < inputList.length; i++) {
+              $(inputList[i]).val('');
+            }
+        }/** Add If**/
+        else if (com == '{{ var.lang.genel.tr.grid.edit }}'){
+            if ($('.trSelected', grid).length == 1){
+                var id = '';
+                id +='&id[]='+$('.trSelected:first',grid).attr('id').replace(/row/i,'');
+                $.ajax({
+                        type: "POST",
+                        url: "/{{ var.locale }}/api/ModUser/load_edit_user",
+                        data: id,
+                        dataType:'json',
+                        success: function (msg) {
+                            if(msg === "not.roll"){
+                                toastr["error"]("{{ var.lang.genel.tr.not_roll }}");
+                            }else if(msg === 'null'){
+                                toastr["error"]("{{ var.lang.genel.tr.unknown }}");
+                            } else{
+                                var date = msg[0].birthday.date;
+                                date = date.split(' ');
+                                $.get( "/{{ var.locale }}/api/ModUser/get_group", function( data ) {
+                                    $("#insert-group_id").html("<option value='0'>{{ var.lang.member_group }}</option>");
+                                    $.each( data, function( key, value ) {
+                                        console.warn(msg[0].groupId);
+                                        if(value.id == msg[0].groupId){
+                                            $("#edit-group_id").append("<option value='"+value.id +"' selected>"+value.name +"</option>");
+                                        }else{
+                                            $("#edit-group_id").append("<option value='"+value.id +"'>"+value.name +"</option>");
+                                        }
+                                    });
+                                });
+                                $('#nameSurname').val(msg[0].nameSurname);
+                                $('#userId').val(msg[0].id);
+                                $('#birthday').val(date[0]);
+                                $('#mobil').val(msg[0].mobil);
+                                $('#email').val(msg[0].email);
+                                $('#address').val(msg[0].address);
+                                $('#job').val(msg[0].job);
+                                $('#website').val(msg[0].website);
+                                $(".editModal").modal('show');
+                            }
+                        }
+                    });
+            }else{
+                toastr["error"]("{{ var.lang.genel.tr.just_select_row }}");
+            }
+        }/** Update If**/
+        else if (com == '{{ var.lang.genel.tr.grid.delete }}'){
+            if ($('.trSelected', grid).length > 0){
+               var conf = confirm("{{ var.lang.genel.tr.sure_delete }}");
+               if (conf === true){
+                   var deteleString = '';
+                   $('.trSelected',grid).each(
+                       function() {
+                           deteleString+='&sil[]='+$(this).attr('id').replace(/row/i,'');
+                       }
+                   );
+                   // Gönder Silsin
+                   $.ajax({
+                       type: "POST",
+                       url:  "/{{ var.locale }}/api/ModUser/delete_user",
+                       data: deteleString,
+                       success: function(msg){
+                            if(msg === 'success.delete'){
+                                toastr["success"]("{{ var.lang.genel.tr.success_delete }}");
+                                $('#flex1').flexReload();
+                                toastr["success"]("{{ var.lang.genel.tr.refresh_list }}");
+                            }
+                       }
+                   });
+               }
+            }else{
+                toastr["error"]("{{ var.lang.genel.tr.min_select_for_delete }}");
+            }
+        }/** Delete If**/
+        else if (com == '{{ var.lang.genel.tr.grid.active }}'){
+            if ($('.trSelected', grid).length > 0){
+               var conf = confirm("{{ var.lang.grid.26 }}");
+               if (conf === true){
+                   var active = '';
+                   var varStatus = '';
+                   $('.trSelected',grid).each(
+                       function() {
+                           active+='&id[]='+$(this).attr('id').replace(/row/i,'');
+                       }
+                   );
+                   varStatus = '&status[]=a';
+                   $.ajax({
+                       type: "POST",
+                       url:  "/{{ var.locale }}/api/ModUser/status_user",
+                       data: active+varStatus,
+                       success: function(msg){
+                            if(msg === 'success.active'){
+                                toastr["success"]("{{ var.lang.genel.tr.success_active }}");
+                                $('#flex1').flexReload();
+                                toastr["success"]("{{ var.lang.genel.tr.refresh_list }}");
+                            }
+                       }
+                   });
+               }
+            }else{
+                toastr["error"]("{{ var.lang.genel.tr.min_select_for_delete }}");
+            }
+        }/** Active If**/
+        else if (com == '{{ var.lang.genel.tr.grid.pasivve }}'){
+            if ($('.trSelected', grid).length > 0){
+               var conf = confirm("{{ var.lang.grid.29 }}");
+               if (conf === true){
+                   var active = '';
+                   var varStatus = '';
+                   $('.trSelected',grid).each(
+                       function() {
+                           active+='&id[]='+$(this).attr('id').replace(/row/i,'');
+                       }
+                   );
+                   varStatus = '&status[]=p';
+                   $.ajax({
+                       type: "POST",
+                       url:  "/{{ var.locale }}/api/ModUser/status_user",
+                       data: active+varStatus,
+                       success: function(msg){
+                            if(msg === 'success.active'){
+                                toastr["success"]("{{ var.lang.genel.tr.success_pasivve }}");
+                                $('#flex1').flexReload();
+                                toastr["success"]("{{ var.lang.genel.tr.refresh_list }}");
+                            }
+                       }
+                   });
+               }
+            }else{
+                toastr["error"]("{{ var.lang.genel.tr.min_select_for_delete }}");
+            }
+        }/** DeActive If**/
+    }
+
+    function user(event) {
+        var username = '';
+        username +='&username[]='+$('.'+event+'Modal #insert-username').val();
+        if($('.'+event+'Modal #insert-username').val().length == 0) {
+            $('.' + event + 'Modal #username').css('border', '1px solid red');
+        }else{
+            $.ajax({
+                    type: "POST",
+                    url: "/{{ var.locale }}/api/ModUser/check_user",
+                    data: username,
+                    success: function (msg) {
+
+                        if (msg == 'true') {
+                            $('.' + event + 'Modal #insert-username').css('border', '1px solid green');
+                        } else {
+                            $('.' + event + 'Modal #insert-username').css('border', '1px solid red');
+                        }
+                    }
+                }
+            );
+        }
+    }
+    var status = 'false';
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+</script>

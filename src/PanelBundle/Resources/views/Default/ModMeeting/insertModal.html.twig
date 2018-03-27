@@ -1,0 +1,91 @@
+<div class="modal fade insertModal" tabindex="-1" role="dialog" aria-hidden="true" id="insertModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="insert" action="#">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">Ekle</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group col-md-12 req">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-nameSurname">{{ var.lang.grid.nameSurname  }} <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="insert-nameSurname" name="nameSurname" required="required" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-alarm">Hatirlatma Tarihi</label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="date" id="insert-alarm" name="alarm" required class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12 req" style="display: none">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-date">Guncelleme Tarihi<span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="insert-date" name="date" required="required" disabled value="{{ "now"|date("Y-m-d") }}" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12 req">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-phone">Telefon<span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <input type="text" id="insert-phone" name="phone" required="required" class="form-control col-md-7 col-xs-12">
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-12 req">
+                        <label class="control-label col-md-3 col-sm-3" for="insert-content">Içerik
+                        </label>
+                        <div class="col-md-6 col-sm-6">
+                            <textarea name="content" id="insert-content" cols="30" rows="10" class="form-control col-md-12 col-xs-12"></textarea>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                <div class="modal-footer insert">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">{{ var.lang.genel.tr.form.close }}</button>
+                    <button type="submit" class="btn btn-primary" name="insert" id="btn-insert">{{ var.lang.genel.tr.form.save }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $( "#insert" ).submit(function( event ) {
+        event.preventDefault();
+        if($('#insert-nameSurname').val() !== '' && $('#insert-nameSurname').val() !== null) {
+            event.preventDefault();
+            status = 'false';
+            var data = {};
+
+            data.nameSurname = $('#insert-nameSurname').val();
+            data.alarm       = $('#insert-alarm').val();
+            data.date       = $('#insert-date').val();
+            data.phone       = $('#insert-phone').val();
+            data.subject     = $('#insert-subject').val();
+            data.content     = $('#insert-content').val();
+            document.getElementById("insert-content").value = "";
+
+            $.ajax({
+                    type: "POST",
+                    url: "/{{ var.locale }}/api/ModMeeting/insert",
+                    data: data,
+                    success: function (msg) {
+                        if(msg === 'success.insert'){
+                            toastr["success"]("{{ var.lang.genel.tr.success_insert }}");
+                            $('.insertModal').modal('hide');
+                            $('#flex1').flexReload();
+                        }else if(msg === "not.roll"){
+                            toastr["error"]("{{ var.lang.genel.tr.not_roll }}");
+                        }else{
+                            toastr["error"]("{{ var.lang.genel.tr.unknown }}");
+                        }
+                    }
+                }
+            );
+        }
+    });
+</script>
